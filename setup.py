@@ -9,11 +9,11 @@ def read_file(file):
    with open(file) as f:
         return f.read()
     
-long_description = read_file("README.rst")
+long_description = read_file("README.md")
 requirements = read_requirements("requirements.txt")
 
 setup(
-    name = 'python_exampple',
+    name = 'project_bootstrap',
     author = 'Joshua',
     author_email = 'blank',
     description = 'blank_des',
