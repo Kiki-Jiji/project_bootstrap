@@ -99,7 +99,7 @@ class ProjectBootstrap:
         project_files_folders = []
 
         for file in self.project_structure:
-            print(file)
+
             struct = self.project_structure[file]
 
             if struct["type"] == "file":
@@ -130,9 +130,6 @@ class ProjectBootstrap:
         self.template_location = template_location
 
     def load_template(self, struct):
-
-        print("load template for file: ")
-        print(struct["name"])
 
         seperator = "_"
 
