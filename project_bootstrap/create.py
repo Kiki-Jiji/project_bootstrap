@@ -1,12 +1,26 @@
 import os
+import yaml
+
 from .file_classes import File, Folder
+from.ProjectBootstrap_functions_generics import *
+
+from dynamic import dynamic_templates
 
 class ProjectBootstrap:
 
     project_root = None
 
-    def __init__(self, project_root: str = None):
+    project_structure = None
+
+    project_files_folder = None
+
+    template_location = None
+
+    def __init__(self, project_root: str = None, yaml_path: str = None, template_location: str = None):
+
+        self.set_template_location(template_location)
         self.set_project_root(project_root)
+        self.set_project_config(yaml_path)
 
     def create_setup(self, file_name: str, package_name: str, author_email: str, description: str):
         file_name = "setup.py"
@@ -15,7 +29,7 @@ class ProjectBootstrap:
         with open(file_name, "w") as open_file:
             open_file.write(template)
 
-    def make_file(self, file_info, folder = None):
+    def create_file(self, file_info, folder = None):
         assert isinstance(file_info, File)
 
         if folder is None:
@@ -29,7 +43,7 @@ class ProjectBootstrap:
         with open(file_path, "w") as open_file:
             open_file.write(contents)
 
-    def make_folder(self, folder_info):
+    def create_folder(self, folder_info):
         assert isinstance(folder_info, Folder)
 
         # TODO strip / folder_info.path maybe also name?
@@ -50,26 +64,56 @@ class ProjectBootstrap:
         # make any files
         try:
             for file in folder_info.files:
-                self.make_file(file, folder_info)
+                self.create_file(file, folder_info)
         except TypeError:
-            self.make_file(folder_info.files, folder_info)
+            self.create_file(folder_info.files, folder_info)
 
+    def create_project(self):
 
+        if self.project_files_folder is None:
+            return("project_files_folder is empty. Run ProjectBootstrap.parse_project_structure")
 
+        for struct in self.project_files_folder:
 
-    def create_directory(self, directory_name: str):
-        os.mkdir(self.project_root + "/" + directory_name)
+            if isinstance(struct, File):
+                self.create_file(struct)
 
-    def create_file(self, file_name: str, contents: dict):
-        file_path = self.project_root + "/" + file_name
+            elif isinstance(struct, Folder):
+                self.create_folder(struct)
+            else:
+                raise ValueError("project_files_folder contains an element which is not of class File or Folder. This isn't supported")
 
-        with open(file_path, "w") as open_file:
-            open_file.write(contents)
+    def set_project_config(self, config_yaml_path: str = None):
 
-    def create_init(self, path: str, empty: bool = True):
-        file_name = self.project_root + "/" + path + "/__init__.py"
-        open(file_name, "x") 
+        if config_yaml_path is None:
+            config_yaml_path = "project_config.yaml"
 
+        with open(config_yaml_path) as config:
+            self.project_structure = yaml.load(config)
+
+    def parse_project_structure(self):
+
+        if self.project_structure is None:
+            return("project_structure is not set. Use ProjectBootstrap.set_project_config")
+
+        project_files_folders = []
+
+        for file in self.project_structure:
+            print(file)
+            struct = self.project_structure[file]
+
+            if struct["type"] == "file":
+                file_to_create = self.convert_to_file(struct)
+                project_files_folders.append(file_to_create)
+            elif struct["type"] == 'folder':
+                files_in_folder =  self.create_file_list(struct)
+                folder_to_create = convert_to_folder(struct, files_in_folder)
+                project_files_folders.append(folder_to_create)
+            else:
+                print("incorrect type")
+
+        self.project_files_folder = project_files_folders
+        
     def set_project_root(self, project_root: str = None):
 
         if project_root is None:
@@ -78,4 +122,79 @@ class ProjectBootstrap:
 
         self.project_root = project_root
 
-    
+    def set_template_location(self, template_location: str = None):
+
+        if template_location is None:
+            template_location = "templates"
+
+        self.template_location = template_location
+
+    def load_template(self, struct):
+
+        print("load template for file: ")
+        print(struct["name"])
+
+        seperator = "_"
+
+        file_name_stripped = struct["contents"].replace(".py", "")
+
+        template_stripped = file_name_stripped.split(seperator)[0]
+
+        available_templates = os.listdir(self.template_location)
+
+        available_templates_stripped = [temp.split(seperator)[0] for temp in available_templates]
+
+        # read dynamic
+        if 'args' in struct.keys():
+            if template_stripped in dynamic_templates:
+                dynamic_template_func = dynamic_templates[template_stripped]
+                template_string = dynamic_template_func(**struct["args"])
+                return template_string
+            else:
+                print("file config indicates it is dynmaic by containing args but no dynamic template is available")
+
+        # if dynamic (contains args) but no dynamic template is found give it another go looking for static
+        if template_stripped in available_templates_stripped:
+            template_string = self.read_template(available_templates[available_templates_stripped.index(template_stripped)])
+        else:
+            print(f"No template found matching {struct['name']}")
+            template_string = None
+
+        return template_string
+
+    def read_template(self, template_name: str):
+
+        path = self.template_location + "/" + template_name
+
+        with open(path, "r") as file:
+            template_text = file.read()
+
+        return template_text
+
+    def convert_to_file(self, struct: dict):
+
+        file_name = struct["name"].replace(".py", "")
+        file_name = strip_all_puncation(file_name)
+
+        if struct["contents"] == file_name or is_template(struct["contents"]):
+            contents = self.load_template(struct)
+        else:
+            contents = struct["contents"]
+
+        file_struct = File(struct["name"], contents)
+        return file_struct
+
+    def create_file_list(self, struct):
+
+        files_list = []
+        for file_struct in struct["files"]:
+            file_info = struct["files"][file_struct]
+            file_to_create = self.convert_to_file(file_info)
+            files_list.append(file_to_create)
+
+        return files_list
+
+
+
+
+        

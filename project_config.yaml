@@ -1,0 +1,29 @@
+gitignore:
+  type: file
+  name: .gitignore
+  contents: gitignore
+test_file:
+  type: file
+  name: special.txt
+  contents: test file hi
+data:
+  type: folder
+  name: data
+  files:
+    placeholder:
+      type: file
+      name: placeholder
+      contents: this is just a placeholder
+    test:
+      type: file
+      name: test.txt
+      contents: another test file
+setup:
+  type: file
+  name: setup.py
+  contents: setup
+  args:
+    package_name: test
+    author: josh
+    author_email: josh@email
+    description: it does stuff

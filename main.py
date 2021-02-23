@@ -1,25 +1,21 @@
 import project_bootstrap as pb
 import os
 import yaml
+import shutil
 
 from project_bootstrap import Folder, File
 
-# exmaple files/folders
-init = File("__init__.py")
-python_package = Folder("example_package", [init])
 
-placeholder = File("ignore.txt", "ignore this file")
-data_folder = Folder("data", files = placeholder)
+from dynamic import dynamic_templates
 
 
-project = [python_package, data_folder]
-
-# temp store- remember to create
-os.mkdir("temp")
+# # temp store- remember to create/delete
 temp = "temp"
+os.mkdir(temp)
 
-# Try with data_folder
 project = pb.ProjectBootstrap(temp)
-project.make_folder(data_folder)
 
-# read yaml
+project.parse_project_structure()
+project.create_project()
+
+shutil.rmtree(temp)
