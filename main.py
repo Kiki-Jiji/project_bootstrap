@@ -14,7 +14,7 @@ from project_bootstrap import Folder, File
 temp = "temp"
 os.mkdir(temp)
 
-project = pb.ProjectBootstrap(temp)
+project = pb.ProjectBootstrap(temp, config= "test_config.yaml")
 
 project.parse_project_structure()
 project.create_project()

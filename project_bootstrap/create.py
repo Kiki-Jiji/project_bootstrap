@@ -3,6 +3,7 @@ import yaml
 
 from .file_classes import File, Folder
 from.ProjectBootstrap_functions_generics import *
+from typing import Union
 
 from dynamic import dynamic_templates
 
@@ -16,18 +17,14 @@ class ProjectBootstrap:
 
     template_location = None
 
-    def __init__(self, project_root: str = None, yaml_path: str = None, template_location: str = None):
+    usage_mode = None
+
+    def __init__(self, project_root: str = None, config: str = None, template_location: str = None, usage_mode: str = "config"):
 
         self.set_template_location(template_location)
         self.set_project_root(project_root)
-        self.set_project_config(yaml_path)
-
-    def create_setup(self, file_name: str, package_name: str, author_email: str, description: str):
-        file_name = "setup.py"
-        template = pb.templates["setup.py"](package_name, author, author_email, description)
-
-        with open(file_name, "w") as open_file:
-            open_file.write(template)
+        self.set_project_config(config)
+        self.set_usage_mode(usage_mode)
 
     def create_file(self, file_info, folder = None):
         assert isinstance(file_info, File)
@@ -83,13 +80,23 @@ class ProjectBootstrap:
             else:
                 raise ValueError("project_files_folder contains an element which is not of class File or Folder. This isn't supported")
 
-    def set_project_config(self, config_yaml_path: str = None):
+    def set_project_config(self, config: Union[str, dict] = None):
 
-        if config_yaml_path is None:
-            config_yaml_path = "project_config.yaml"
+        if config is None:
+            config = "project_config.yaml"
 
-        with open(config_yaml_path) as config:
-            self.project_structure = yaml.load(config)
+        elif isinstance(config, str):
+            config = config
+
+        elif isinstance(config, dict):
+            self.project_structure = config
+
+        else:
+            raise ValueError("Please provide either a str with the path to a valid config or provide a config in the form of a dict")
+
+        if isinstance(config, str):
+            with open(config) as conf:
+                self.project_structure = yaml.load(conf)
 
     def parse_project_structure(self):
 
@@ -121,6 +128,15 @@ class ProjectBootstrap:
             print(f"Non project root supplied, setting to current working directory: \n {os.getcwd()}")
 
         self.project_root = project_root
+
+    def set_usage_mode(self, usage_option: str):
+
+        valid_modes = ['config', 'cli'] 
+
+        if usage_option in valid_modes:
+            self.usage_mode = usage_option  
+        else:
+            raise ValueError(f"Supplied usage option not accepted. \n Accepted options are {valid_modes}")
 
     def set_template_location(self, template_location: str = None):
 
