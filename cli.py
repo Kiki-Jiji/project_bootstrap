@@ -3,7 +3,7 @@ import project_bootstrap as pb
 import os
 import yaml
 import shutil
-
+import subprocess
 from project_bootstrap import Folder, File
 
 
@@ -14,12 +14,40 @@ parser.add_argument("project_name",
                     help="The name of the project. The name the folder created is given.",
                     type=str)
 
+parser.add_argument("author", 
+                    help="The author('s) or creator of the project. ",
+                    type=str)
+
+parser.add_argument("author_email", 
+                    help="The author('s) or creator of the project email address. ",
+                    type=str)
+
+parser.add_argument("description", 
+                    help="Descrption of the project ",
+                    type=str)
+
+parser.add_argument("--git", 
+                    help="Initalises git",
+                    action="store_true")
+
 args = parser.parse_args()
 
-print(args.project_name)
-
 project_name = args.project_name
+author = args.author
+author_email = args.author_email
+description = args.description
 
+git = args.git
+
+print(git)
+
+print(git is True)
+
+ignore = {
+    "type": "file",
+    "name": "ignore.txt",
+    "contents": "ignore this file",
+}
 
 project_config = {
     "gitignore": {
@@ -27,10 +55,36 @@ project_config = {
         "name": ".gitignore",
         "contents": "gitignore"
     },
-    "test_file": {
+    "readme": {
         "type": "file",
-        "name": "test.txt",
-        "contents": "hi there!"
+        "name": "README.md",
+        "contents": "# README",
+    },
+    "requirements": {
+        "type": "file",
+        "name": "requirements.txt",
+        "contents": "# add packages in here",
+    },
+    "data": {
+        "type": "folder",
+        "name": "data",
+        "files": {
+            "ignore": ignore
+        }
+    },
+    "docs": {
+        "type": "folder",
+        "name": "docs",
+        "files": {
+            "ignore": ignore
+        }
+    },
+    "analysis": {
+        "type": "folder",
+        "name": "analysis",
+        "files": {
+            "ignore": ignore
+        }
     },
     project_name: {
         "type": "folder",
@@ -42,15 +96,30 @@ project_config = {
                 "contents": "# init"
             }
         }
+    },
+    "setup": {
+        "type": "file",
+        "name": "setup.py",
+        "contents": "setup",
+        "args": {
+            "package_name": project_name,
+            "author": author,
+            "author_email": author_email,
+            "description": description
+        }     
     }
+  
 
 }
 
 
+def main(project_name, project_config, git):
 
-def main(project_name, project_config):
 
     os.mkdir(project_name)
+
+    if git is True:
+        subprocess.run("git init", shell="True", capture_output=True, cwd=project_name)
 
     project = pb.ProjectBootstrap(project_name, config=project_config)
 
@@ -60,4 +129,5 @@ def main(project_name, project_config):
 
 
 if __name__ == '__main__':
-    main(project_name, project_config)
+    main(project_name, project_config, git)
+
