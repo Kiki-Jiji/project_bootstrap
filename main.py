@@ -12,7 +12,7 @@ from project_bootstrap import Folder, File
 
 # # temp store- remember to create/delete
 temp = "temp"
-os.mkdir(temp)
+#os.mkdir(temp)
 
 project = pb.ProjectBootstrap(temp, config= "test_config.yaml")
 

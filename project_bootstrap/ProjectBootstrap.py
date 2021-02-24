@@ -17,14 +17,11 @@ class ProjectBootstrap:
 
     template_location = None
 
-    usage_mode = None
-
-    def __init__(self, project_root: str = None, config: str = None, template_location: str = None, usage_mode: str = "config"):
+    def __init__(self, project_root: str = None, config: str = None, template_location: str = None):
 
         self.set_template_location(template_location)
         self.set_project_root(project_root)
         self.set_project_config(config)
-        self.set_usage_mode(usage_mode)
 
     def create_file(self, file_info, folder = None):
         assert isinstance(file_info, File)
@@ -66,6 +63,8 @@ class ProjectBootstrap:
             self.create_file(folder_info.files, folder_info)
 
     def create_project(self):
+
+        self.create_project_folder()
 
         if self.project_files_folder is None:
             return("project_files_folder is empty. Run ProjectBootstrap.parse_project_structure")
@@ -128,15 +127,6 @@ class ProjectBootstrap:
             print(f"Non project root supplied, setting to current working directory: \n {os.getcwd()}")
 
         self.project_root = project_root
-
-    def set_usage_mode(self, usage_option: str):
-
-        valid_modes = ['config', 'cli'] 
-
-        if usage_option in valid_modes:
-            self.usage_mode = usage_option  
-        else:
-            raise ValueError(f"Supplied usage option not accepted. \n Accepted options are {valid_modes}")
 
     def set_template_location(self, template_location: str = None):
 
@@ -206,6 +196,12 @@ class ProjectBootstrap:
             files_list.append(file_to_create)
 
         return files_list
+
+    def create_project_folder(self):
+        try:
+            os.mkdir(self.project_root)
+        except:
+            print("folder already exists, using existing folder")
 
 
 

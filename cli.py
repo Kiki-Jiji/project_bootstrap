@@ -36,12 +36,9 @@ project_name = args.project_name
 author = args.author
 author_email = args.author_email
 description = args.description
-
 git = args.git
 
-print(git)
 
-print(git is True)
 
 ignore = {
     "type": "file",
@@ -108,8 +105,6 @@ project_config = {
             "description": description
         }     
     }
-  
-
 }
 
 
