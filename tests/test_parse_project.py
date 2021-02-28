@@ -9,9 +9,7 @@ test = Test(interactive = False)
 
 def test_parse_project():
 
-    pb = ProjectBootstrap(project_root=test.test_folder, 
-                        config=test.test_yaml_path, 
-                        template_location=test.template_location)
+    pb = ProjectBootstrap(**test.config())
 
     pb.parse_project_structure()
 

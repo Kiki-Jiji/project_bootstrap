@@ -12,4 +12,16 @@ class Test:
             self.template_location = "../templates"
 
     def cleanup(self):
-        shutil.rmtree(self.test_folder)
+        try:
+            shutil.rmtree(self.test_folder)
+        except:
+            pass
+
+    def config(self):
+        testing_config = {
+            "project_root": self.test_folder,
+            "config": self.test_yaml_path,
+            "template_location": self.template_location
+            }
+
+        return testing_config

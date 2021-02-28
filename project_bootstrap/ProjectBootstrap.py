@@ -64,10 +64,10 @@ class ProjectBootstrap:
 
     def create_project(self):
 
-        self.create_project_folder()
-
         if self.project_files_folder is None:
             return("project_files_folder is empty. Run ProjectBootstrap.parse_project_structure")
+
+        self.create_project_folder()
 
         for struct in self.project_files_folder:
 

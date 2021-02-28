@@ -5,7 +5,13 @@ Run with pythonw gui.py
 '''
 
 from gooey import Gooey, GooeyParser
-
+import argparse
+import project_bootstrap as pb
+import os
+import yaml
+import shutil
+import subprocess
+from project_bootstrap import Folder, File
 
 @Gooey()
 def main():
@@ -25,6 +31,11 @@ def main():
     parser.parse_args()
     print('Hooray!')
 
+    project = pb.ProjectBootstrap()
+
+    project.parse_project_structure()
+
+    project.create_project()
 
 if __name__ == '__main__':
     main()
