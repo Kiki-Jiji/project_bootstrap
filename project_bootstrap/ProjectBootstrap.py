@@ -1,5 +1,6 @@
 import os
 import yaml
+import subprocess
 
 from .file_classes import File, Folder
 from.ProjectBootstrap_functions_generics import *
@@ -62,12 +63,15 @@ class ProjectBootstrap:
         except TypeError:
             self.create_file(folder_info.files, folder_info)
 
-    def create_project(self):
+    def create_project(self, git: bool=False):
 
         if self.project_files_folder is None:
-            return("project_files_folder is empty. Run ProjectBootstrap.parse_project_structure")
+            self.parse_project_structure()
 
         self.create_project_folder()
+
+        if git is True:
+            self.init_git()
 
         for struct in self.project_files_folder:
 
@@ -202,6 +206,9 @@ class ProjectBootstrap:
             os.mkdir(self.project_root)
         except:
             print("folder already exists, using existing folder")
+
+    def init_git(self):
+        subprocess.run("git init", shell="True", capture_output=True, cwd=self.project_root)
 
 
 

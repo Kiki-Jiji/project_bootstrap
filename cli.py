@@ -1,14 +1,10 @@
 import argparse
-import project_bootstrap as pb
-import os
-import yaml
-import shutil
-import subprocess
-from project_bootstrap import Folder, File, project_structure
 
+from project_bootstrap import Folder, File, project_structure, ProjectBootstrap
+from gooey import Gooey, GooeyParser
 
-def main(project_name, project_config, git):
-
+@Gooey()
+def main():
 
     parser = argparse.ArgumentParser()
 
@@ -40,19 +36,10 @@ def main(project_name, project_config, git):
     description = args.description
     git = args.git
 
-
     project_config = project_structure(project_name, author, author_email, description)
 
-    if git is True:
-        subprocess.run("git init", shell="True", capture_output=True, cwd=project_name)
-
-    project = pb.ProjectBootstrap(project_name, config=project_config)
-
-    project.parse_project_structure()
-
-    project.create_project()
-
+    project = ProjectBootstrap(project_name, config=project_config).create_project(git)
 
 if __name__ == '__main__':
-    main(project_name, project_config, git)
+    main()
 

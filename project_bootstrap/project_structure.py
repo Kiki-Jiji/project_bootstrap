@@ -67,3 +67,5 @@ def project_structure(project_name, author, author_email, description):
             }     
         }
     }
+
+    return project_config

@@ -31,6 +31,8 @@ def test_file_created_text():
         file = f.read()
 
     assert file == conf["config"]["test_file"]["contents"], "contents of file is correct" 
+
+    test.cleanup()
     
 def test_file_created_static_template():
     pass

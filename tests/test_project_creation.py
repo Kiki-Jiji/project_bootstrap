@@ -14,3 +14,5 @@ def test_project_folder_created():
 
     pb.create_project()
     assert os.path.exists(test.test_folder), "folder created when project created"
+
+    test.cleanup()
