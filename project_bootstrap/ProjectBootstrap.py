@@ -10,6 +10,8 @@ from dynamic import dynamic_templates
 
 class ProjectBootstrap:
 
+    project_name = None
+
     project_root = None
 
     project_structure = None
@@ -18,8 +20,9 @@ class ProjectBootstrap:
 
     template_location = None
 
-    def __init__(self, project_root: str = None, config: str = None, template_location: str = None):
+    def __init__(self, project_root: str = None, project_name: str = None, config: str = None, template_location: str = None):
 
+        self.set_project_name(project_name)
         self.set_template_location(template_location)
         self.set_project_root(project_root)
         self.set_project_config(config)
@@ -27,10 +30,12 @@ class ProjectBootstrap:
     def create_file(self, file_info, folder = None):
         assert isinstance(file_info, File)
 
+        project_location = self.project_root + "/" + self.project_name + "/"
+
         if folder is None:
-            file_path = self.project_root + "/" + file_info.name 
+            file_path = project_location+ file_info.name 
         else:
-            file_path = self.project_root + "/" + folder.name + "/" + file_info.name
+            file_path = project_location + folder.name + "/" + file_info.name
 
         contents = file_info.contents 
         if contents is None: contents = ""
@@ -43,10 +48,12 @@ class ProjectBootstrap:
 
         # TODO strip / folder_info.path maybe also name?
 
+        project_location = self.project_root + "/" + self.project_name + "/"
+
         if folder_info.root is True:
-            folder_path = self.project_root + "/" + folder_info.name
+            folder_path = project_location + folder_info.name
         elif folder_info.root is False:
-            folder_path = self.project_root + "/" + folder_info.path + "/" + folder_info.name
+            folder_path = project_location + folder_info.path + "/" + folder_info.name
         else:
             raise ValueError(f"Folder.root needs to be a boolean, so only True or False are allowed. The actual value was {folder_info.root}")
 
@@ -125,12 +132,22 @@ class ProjectBootstrap:
         self.project_files_folder = project_files_folders
         
     def set_project_root(self, project_root: str = None):
-
+        """
+        Project Root, the location where the project is to be created, as in a folder with the project name gets created in this location
+        """
         if project_root is None:
             project_root = "./"
-            print(f"Non project root supplied, setting to current working directory: \n {os.getcwd()}")
+            print(f"No project root supplied, setting to current working directory: \n {os.getcwd()}")
 
         self.project_root = project_root
+
+
+    def set_project_name(self, project_name: str):
+        if project_name is None:
+            raise ValueError("No project name supplied")
+
+        self.project_name = project_name
+
 
     def set_template_location(self, template_location: str = None):
 
@@ -203,12 +220,12 @@ class ProjectBootstrap:
 
     def create_project_folder(self):
         try:
-            os.mkdir(self.project_root)
+            os.mkdir(self.project_root + "/" + self.project_name)
         except:
             print("folder already exists, using existing folder")
 
     def init_git(self):
-        subprocess.run("git init", shell="True", capture_output=True, cwd=self.project_root)
+        subprocess.run("git init", shell="True", capture_output=True, cwd=self.project_root + "/" + self.project_name)
 
 
 
